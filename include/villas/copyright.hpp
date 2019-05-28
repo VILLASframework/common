@@ -31,4 +31,4 @@ void print_copyright();
 /** Print version to stdout. */
 void print_version();
 
-} // namespace villas
+} /* namespace villas */
