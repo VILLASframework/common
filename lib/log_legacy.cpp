@@ -24,15 +24,13 @@
 #include <cstdio>
 #include <cerrno>
 
-#include <villas/utils.h>
+#include <villas/utils.hpp>
 #include <villas/log.hpp>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-result"
 
 using namespace villas;
-
-extern "C" {
 
 int log_get_width()
 {
@@ -149,8 +147,6 @@ void jerror(json_error_t *err, const char *fmt, ...)
 
 	killme(SIGABRT);
 	pause();
-}
-
 }
 
 #pragma GCC diagnostic pop

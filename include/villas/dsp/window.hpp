@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include <villas/utils.h>
+#include <villas/utils.hpp>
 
 namespace villas {
 namespace dsp {
@@ -77,5 +77,5 @@ public:
 	}
 };
 
-} // namespace dsp
-} // namespace villas
+} /* namespace dsp */
+} /* namespace villas */
