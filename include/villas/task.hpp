@@ -65,7 +65,7 @@ struct Task {
 #endif
 
 	/** Create a new task with the given rate. */
-	Task(int clock = CLOCK_REALTIME);
+	Task(int clock = CLOCK_MONOTONIC);
 
 	~Task();
 
