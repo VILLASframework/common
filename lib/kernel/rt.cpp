@@ -130,7 +130,7 @@ void setPriority(int priority)
 
 	Logger logger = logging.get("kernel:rt");
 
-	ret = sched_setscheduler(0, SCHED_FIFO, &param);
+	ret = sched_setscheduler(0, SCHED_RR, &param);
 	if (ret)
 		throw SystemError("Failed to set real time priority");
 
