@@ -26,6 +26,8 @@
 
 #include <pthread.h>
 
+#define SCHED_POLICY SCHED_RR
+
 namespace villas {
 namespace kernel {
 namespace rt {
@@ -36,6 +38,8 @@ void setProcessAffinity(int affinity);
 void setThreadAffinity(pthread_t thread, int affinity);
 
 void setPriority(int priority);
+
+int getMaxPriority();
 
 /** Checks for realtime (PREEMPT_RT) patched kernel.
  *

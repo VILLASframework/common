@@ -22,19 +22,22 @@
 
 #include <sched.h>
 #include <unistd.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 
 #include <villas/log.hpp>
 #include <villas/cpuset.hpp>
 #include <villas/config.hpp>
 #include <villas/utils.hpp>
 #include <villas/exceptions.hpp>
+#include <villas/utils.hpp>
 
 #include <villas/kernel/kernel.hpp>
 #include <villas/kernel/kernel.hpp>
 #include <villas/kernel/rt.hpp>
 
 #ifdef __linux__
-  using villas::utils::CpuSet;
+using villas::utils::CpuSet;
 #endif /* __linux__ */
 
 namespace villas {
@@ -49,17 +52,23 @@ void init(int priority, int affinity)
 
 #ifdef __linux__
 	int is_rt, is_isol;
-	char isolcpus[255];
+				char isolcpus[255];
 
 	/* Use FIFO scheduler with real time priority */
 	is_rt = isPreemptible();
 	if (!is_rt)
 		logger->warn("We recommend to use an PREEMPT_RT patched kernel!");
 
+	if (!priority) {
+		priority = getMaxPriority();
+		if (!priority)
+			logger->warn("Failed to run with real-time priority. Please run VILLASnode with root-privileges (sudo villas-node)");
+
+		logger->debug("Maximum real-time priority is {}", priority);
+	}
+
 	if (priority)
 		setPriority(priority);
-	else
-		logger->warn("You might want to use the 'priority' setting to increase " PROJECT_NAME "'s process priority");
 
 	if (affinity) {
 		is_isol = getCmdlineParam("isolcpus", isolcpus, sizeof(isolcpus));
@@ -71,7 +80,7 @@ void init(int priority, int affinity)
 			CpuSet cset_non_isol = ~cset_isol & cset_pin;
 
 			if (cset_non_isol.count() > 0)
-				logger->warn("Affinity setting includes cores which are not isolated: affinity={}, isolcpus={}, non_isolated={}", (std::string) cset_pin, (std::string) cset_isol, (std::string) cset_non_isol);
+				logger->warn("Affinity setting includes cores which are not isolated: affinity={}, isolcpus={}, non_isolated={}", (std::string)cset_pin, (std::string)cset_isol, (std::string)cset_non_isol);
 		}
 
 		setProcessAffinity(affinity);
@@ -81,8 +90,8 @@ void init(int priority, int affinity)
 #else
 	logger->warn("This platform is not optimized for real-time execution");
 
-	(void) affinity;
-	(void) priority;
+	(void)affinity;
+	(void)priority;
 #endif /* __linux__ */
 }
 
@@ -102,7 +111,7 @@ void setProcessAffinity(int affinity)
 	if (ret)
 		throw SystemError("Failed to set CPU affinity of process");
 
-	logger->debug("Set affinity to {} {}", cset_pin.count() == 1 ? "core" : "cores", (std::string) cset_pin);
+	logger->debug("Set affinity to {} {}", cset_pin.count() == 1 ? "core" : "cores", (std::string)cset_pin);
 }
 
 void setThreadAffinity(pthread_t thread, int affinity)
@@ -119,7 +128,7 @@ void setThreadAffinity(pthread_t thread, int affinity)
 	if (ret)
 		throw SystemError("Failed to set CPU affinity of thread");
 
-	logger->debug("Set affinity of thread {} to {} {}", (long unsigned) thread, cset_pin.count() == 1 ? "core" : "cores", (std::string) cset_pin);
+	logger->debug("Set affinity of thread {} to {} {}", (long unsigned)thread, cset_pin.count() == 1 ? "core" : "cores", (std::string)cset_pin);
 }
 
 void setPriority(int priority)
@@ -130,11 +139,45 @@ void setPriority(int priority)
 
 	Logger logger = logging.get("kernel:rt");
 
-	ret = sched_setscheduler(0, SCHED_RR, &param);
+	ret = sched_setscheduler(0, SCHED_POLICY, &param);
 	if (ret)
 		throw SystemError("Failed to set real time priority");
 
-	logger->debug("Task priority set to {}", priority);
+	logger->info("Set real-time priority to {}", priority);
+}
+
+int getMaxPriority()
+{
+	struct rlimit l;
+
+	int maxPrio = sched_get_priority_max(SCHED_POLICY);
+	if (maxPrio < 0)
+		throw SystemError("Failed to get maximum scheduler priority");
+
+	if (utils::isPrivileged()) {
+		l.rlim_max = maxPrio;
+		l.rlim_cur = maxPrio;
+		int ret = setrlimit(RLIMIT_RTPRIO, &l);
+		if (ret)
+			return ret;
+
+		return maxPrio;
+	}
+	else {
+		int ret = getrlimit(RLIMIT_RTPRIO, &l);
+		if (ret)
+			return ret;
+
+		if (l.rlim_cur < l.rlim_max) {
+			l.rlim_cur = l.rlim_max;
+
+			ret = setrlimit(RLIMIT_RTPRIO, &l);
+			if (ret)
+				return ret;
+		}
+
+		return MIN(maxPrio, (int) l.rlim_cur);
+	}
 }
 
 bool isPreemptible()
