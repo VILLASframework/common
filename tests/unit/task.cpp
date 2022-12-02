@@ -20,8 +20,8 @@ Test(task, rate, .timeout = 10)
 	int runs = 10;
 	double rate = 5, waited;
 	struct timespec start, end;
-	Task task(CLOCK_MONOTONIC);
 
+	Task task(CLOCK_MONOTONIC);
 	task.setRate(rate);
 
 	int i;
@@ -47,6 +47,7 @@ Test(task, wait_until, .timeout = 5)
 	int ret;
 	struct timespec start, end, diff, future;
 
+	// time_now() is relative to CLOCK_REALTIME
 	Task task(CLOCK_REALTIME);
 
 	double waitfor = 3.423456789;
