@@ -41,7 +41,7 @@ MemoryManager::getOrCreateAddressSpace(std::string name)
 		return addrSpaceLookup.at(name);
 	} catch (const std::out_of_range&) {
 		// Does not yet exist, create
-		std::shared_ptr<AddressSpace> addrSpace(new AddressSpace);
+		AddressSpace::Ptr addrSpace(new AddressSpace);
 		addrSpace->name = name;
 
 		// Cache it for the next access
@@ -79,7 +79,7 @@ MemoryManager::AddressSpaceId
 MemoryManager::findAddressSpace(const std::string &name)
 {
 	return memoryGraph.findVertex(
-	            [&](const std::shared_ptr<AddressSpace>& v) {
+	            [&](const AddressSpace::Ptr& v) {
 		return v->name == name;
 	});
 }

@@ -142,6 +142,8 @@ private:
 	 */
 	class AddressSpace : public graph::Vertex {
 	public:
+		using Ptr = std::shared_ptr<AddressSpace>;
+
 		std::string name;	// Human-readable name
 
 		friend std::ostream&

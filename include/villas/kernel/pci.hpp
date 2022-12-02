@@ -11,6 +11,7 @@
 #include <cstddef>
 #include <cstdint>
 
+#include <memory>
 #include <list>
 
 namespace villas {
@@ -67,6 +68,8 @@ struct Region {
 
 class Device {
 public:
+	using Ptr = std::shared_ptr<Device>;
+
 	Device(Id i, Slot s) :
 		id(i),
 		slot(s)
@@ -102,7 +105,7 @@ public:
 	Slot slot;
 };
 
-class DeviceList : public std::list<std::shared_ptr<Device>> {
+class DeviceList : public std::list<Device::Ptr> {
 public:
 	/** Initialize Linux PCI handle.
 	 *

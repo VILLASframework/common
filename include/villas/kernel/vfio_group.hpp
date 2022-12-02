@@ -26,7 +26,10 @@ namespace kernel {
 namespace vfio {
 
 class Group {
+
 public:
+	using Ptr = std::shared_ptr<Group>;
+
 	Group(int index, bool iommuEnabled);
 	~Group();
 
@@ -50,8 +53,8 @@ public:
 		return index;
 	}
 
-	std::shared_ptr<Device> attachDevice(std::shared_ptr<Device> device);
-	std::shared_ptr<Device> attachDevice(const std::string& name, const kernel::pci::Device *pci_device = nullptr);
+	Device::Ptr attachDevice(Device::Ptr device);
+	Device::Ptr attachDevice(const std::string& name, const kernel::pci::Device *pci_device = nullptr);
 
 	bool checkStatus();
 	void dump();
@@ -69,7 +72,7 @@ private:
 	struct vfio_group_status status;
 
 	// All devices owned by this group
-	std::list<std::shared_ptr<Device>> devices;
+	std::list<Device::Ptr> devices;
 
 	Logger log;
 };

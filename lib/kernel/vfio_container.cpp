@@ -103,7 +103,7 @@ Container::~Container()
 		log->error("Error closing vfio container fd {}: {}", fd, ret);
 }
 
-void Container::attachGroup(std::shared_ptr<Group> group)
+void Container::attachGroup(Group::Ptr group)
 {
 	if (group->isAttachedToContainer())
 		throw RuntimeError("Group is already attached to a container");
@@ -136,7 +136,7 @@ void Container::attachGroup(std::shared_ptr<Group> group)
 	groups.push_back(std::move(group));
 }
 
-std::shared_ptr<Group> Container::getOrAttachGroup(int index)
+Group::Ptr Container::getOrAttachGroup(int index)
 {
 	// Search if group with index already exists
 	for (auto &group : groups) {
@@ -164,7 +164,7 @@ void Container::dump()
 	}
 }
 
-std::shared_ptr<Device> Container::attachDevice(const std::string& name, int index)
+Device::Ptr Container::attachDevice(const std::string& name, int index)
 {
 	auto group = getOrAttachGroup(index);
 	auto device = group->attachDevice(name);
@@ -172,7 +172,7 @@ std::shared_ptr<Device> Container::attachDevice(const std::string& name, int ind
 	return device;
 }
 
-std::shared_ptr<Device> Container::attachDevice(const pci::Device &pdev)
+Device::Ptr Container::attachDevice(const pci::Device &pdev)
 {
 	int ret;
 	char name[32], iommu_state[4];

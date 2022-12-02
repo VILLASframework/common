@@ -60,7 +60,7 @@ Group::Group(int index, bool iommuEnabled) :
 
 }
 
-std::shared_ptr<Device> Group::attachDevice(std::shared_ptr<Device> device)
+Device::Ptr Group::attachDevice(Device::Ptr device)
 {
 	if (device->isAttachedToGroup())
 		throw RuntimeError("Device is already attached to a group");
@@ -72,7 +72,7 @@ std::shared_ptr<Device> Group::attachDevice(std::shared_ptr<Device> device)
 	return device;
 }
 
-std::shared_ptr<Device> Group::attachDevice(const std::string& name, const kernel::pci::Device *pci_device)
+Device::Ptr Group::attachDevice(const std::string& name, const kernel::pci::Device *pci_device)
 {
 	auto device = std::make_shared<Device>(name, fd, pci_device);
 	return attachDevice(device);

@@ -35,6 +35,8 @@ namespace vfio {
 
 class Device {
 public:
+	using Ptr = std::shared_ptr<Device>;
+
 	Device(const std::string &name, int groupFileDescriptor, const kernel::pci::Device *pci_device = nullptr);
 	~Device();
 

@@ -25,30 +25,23 @@ namespace kernel {
 namespace vfio {
 
 class Container {
-private:
-	// This is a singleton: There can only be one container to rule them all.
-	Container();
 
 public:
-	// The Container instance is lazily initialized and correctly destroyed.
-	static Container* getInstance()
-	{
-		static Container instance;
-		return &instance;
-	}
+	using Ptr = std::shared_ptr<Container>;
+
+	Container();
+	~Container();
 
 	// No copying allowed
 	Container(Container const&) = delete;
 	void operator=(Container const&) = delete;
 
-	~Container();
-
 	void dump();
 
-	void attachGroup(std::shared_ptr<Group> group);
+	void attachGroup(Group::Ptr group);
 
-	std::shared_ptr<Device> attachDevice(const std::string& name, int groupIndex);
-	std::shared_ptr<Device> attachDevice(const pci::Device &pdev);
+	Device::Ptr attachDevice(const std::string& name, int groupIndex);
+	Device::Ptr attachDevice(const pci::Device &pdev);
 
 	/**
 	 * @brief Map VM to an IOVA, which is accessible by devices in the container
@@ -59,7 +52,7 @@ public:
 	 */
 	uintptr_t memoryMap(uintptr_t virt, uintptr_t phys, size_t length);
 
-	/** munmap() a region which has been mapped by vfio_map_region() */
+	// munmap() a region which has been mapped by vfio_map_region()
 	bool memoryUnmap(uintptr_t phys, size_t length);
 
 	bool isIommuEnabled() const
@@ -68,7 +61,7 @@ public:
 	}
 
 private:
-	std::shared_ptr<Group> getOrAttachGroup(int index);
+	Group::Ptr getOrAttachGroup(int index);
 
 	int fd;
 	int version;
@@ -77,7 +70,7 @@ private:
 	bool hasIommu;
 
 	// All groups bound to this container
-	std::list<std::shared_ptr<Group>> groups;
+	std::list<Group::Ptr> groups;
 
 	Logger log;
 };
