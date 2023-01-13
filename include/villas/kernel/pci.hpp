@@ -8,10 +8,12 @@
 
 #pragma once
 
+#include <list>
+#include <fstream>
+
 #include <cstddef>
 #include <cstdint>
 
-#include <list>
 #include <villas/log.hpp>
 
 namespace villas {
@@ -31,8 +33,7 @@ public:
 		class_code(cc)
 	{ }
 
-	bool
-	operator==(const Id &i);
+	bool operator==(const Id &i);
 
 	unsigned int vendor;
 	unsigned int device;
@@ -50,8 +51,7 @@ public:
 		function(fcn)
 	{ }
 
-	bool
-	operator==(const Slot &s);
+	bool operator==(const Slot &s);
 
 	unsigned int domain;
 	unsigned int bus;
@@ -87,59 +87,52 @@ public:
 	bool
 	operator==(const Device &other);
 
-	/** Get currently loaded driver for device */
-	std::string
-	getDriver() const;
+	// Get currently loaded driver for device.
+	std::string getDriver() const;
 
-	/** Bind a new LKM to the PCI device */
-	bool
-	attachDriver(const std::string &driver) const;
+	// Bind a new LKM to the PCI device.
+	bool attachDriver(const std::string &driver) const;
 
-	/** Return the IOMMU group of this PCI device or -1 if the device is not in a group. */
-	int
-	getIOMMUGroup() const;
+	// Return the IOMMU group of this PCI device or -1 if the device is not in a group.
+	int getIommuGroup() const;
 
-	std::list<Region>
-	getRegions() const;
+	std::list<Region> getRegions() const;
 
-	/** Write 32-bit BAR value from to the PCI configuration space */
-	bool writeBar(uint32_t new_bar);
+	// Write 32-bit BAR value from to the PCI configuration space
+	void writeBar(uint32_t addr, unsigned bar = 0);
 
-	/** If BAR values in config space and in the kernel do not match, rewrite
-	 * the BAR value of the kernel to PCIe config space.
-	 */
-	bool rewriteBar();
+	// If BAR values in config space and in the kernel do not match, rewrite
+	// the BAR value of the kernel to PCIe config space.
+	void rewriteBar(unsigned bar = 0);
 
-	/** Read 32-bit BAR value from the PCI configuration space */
-	bool readBar(uint32_t &bar) const;
+	// Read 32-bit BAR value from the PCI configuration space.
+	uint32_t readBar(unsigned bar = 0) const;
 
-	/** Read 32-bit BAR value from the devices resource file. This is what the kernel
-	 * thinks the BAR should be.
-	 */
-	bool readHostBar(uint32_t &bar) const;
+	// Read 32-bit BAR value from the devices resource file. This is what the kernel
+	// thinks the BAR should be.
+	uint32_t readHostBar(unsigned bar = 0) const;
 
 	Id id;
 	Slot slot;
 private:
 	villas::Logger log;
+
+protected:
+	std::fstream openSysFs(const std::string &subPath, std::ios_base::openmode mode = std::ios_base::in | std::ios_base::out) const;
 };
 
 class DeviceList : public std::list<std::shared_ptr<Device>> {
 public:
-	/** Initialize Linux PCI handle.
-	 *
-	 * This search for all available PCI devices under /sys/bus/pci
-	 */
+	// Initialize Linux PCI handle.
+	//
+	// This search for all available PCI devices under /sys/bus/pci
 	DeviceList();
 
-	DeviceList::value_type
-	lookupDevice(const Slot &s);
+	DeviceList::value_type lookupDevice(const Slot &s);
 
-	DeviceList::value_type
-	lookupDevice(const Id &i);
+	DeviceList::value_type lookupDevice(const Id &i);
 
-	DeviceList::value_type
-	lookupDevice(const Device &f);
+	DeviceList::value_type lookupDevice(const Device &f);
 };
 
 } // namespace pci

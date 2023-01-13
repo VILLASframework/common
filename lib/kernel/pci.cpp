@@ -21,6 +21,8 @@
 
 using namespace villas::kernel::pci;
 
+#define PCI_BASE_ADDRESS_N(n) (PCI_BASE_ADDRESS_0 + sizeof(uint32_t) * (n))
+
 DeviceList::DeviceList()
 {
 	struct dirent *e;
@@ -35,8 +37,7 @@ DeviceList::DeviceList()
 	if (!dp)
 		throw SystemError("Failed to detect PCI devices");
 
-	while ((e = readdir(dp)))
-	{
+	while ((e = readdir(dp))) {
 		// Ignore special entries
 		if ((strcmp(e->d_name, ".") == 0) ||
 			(strcmp(e->d_name, "..") == 0))
@@ -45,8 +46,7 @@ DeviceList::DeviceList()
 		Id id;
 		Slot slot;
 
-		struct
-		{
+		struct {
 			const char *s;
 			unsigned int *p;
 		} map[] = {
@@ -54,8 +54,7 @@ DeviceList::DeviceList()
 			{"device", &id.device}};
 
 		// Read vendor & device id
-		for (int i = 0; i < 2; i++)
-		{
+		for (int i = 0; i < 2; i++) {
 			snprintf(path, sizeof(path), "%s/bus/pci/devices/%s/%s", SYSFS_PATH, e->d_name, map[i].s);
 
 			f = fopen(path, "r");
@@ -80,22 +79,19 @@ DeviceList::DeviceList()
 	closedir(dp);
 }
 
-DeviceList::value_type
-DeviceList::lookupDevice(const Slot &s)
+DeviceList::value_type DeviceList::lookupDevice(const Slot &s)
 {
 	return *std::find_if(begin(), end(), [s](const DeviceList::value_type &d)
 						 { return d->slot == s; });
 }
 
-DeviceList::value_type
-DeviceList::lookupDevice(const Id &i)
+DeviceList::value_type DeviceList::lookupDevice(const Id &i)
 {
 	return *std::find_if(begin(), end(), [i](const DeviceList::value_type &d)
 						 { return d->id == i; });
 }
 
-DeviceList::value_type
-DeviceList::lookupDevice(const Device &d)
+DeviceList::value_type DeviceList::lookupDevice(const Device &d)
 {
 	auto dev = std::find_if(begin(), end(), [d](const DeviceList::value_type &e)
 							{ return *e == d; });
@@ -103,9 +99,10 @@ DeviceList::lookupDevice(const Device &d)
 	return dev == end() ? value_type() : *dev;
 }
 
-Id::Id(const std::string &str) : vendor(0),
-								 device(0),
-								 class_code(0)
+Id::Id(const std::string &str) :
+	vendor(0),
+	device(0),
+	class_code(0)
 {
 	char *s, *c, *e;
 	char *tmp = strdup(str.c_str());
@@ -114,19 +111,16 @@ Id::Id(const std::string &str) : vendor(0),
 		return;
 
 	s = strchr(tmp, ':');
-	if (!s)
-	{
+	if (!s) {
 		free(tmp);
 		throw RuntimeError("Failed to parse PCI id: ':' expected", str);
 	}
 
 	*s++ = 0;
-	if (tmp[0] && strcmp(tmp, "*"))
-	{
+	if (tmp[0] && strcmp(tmp, "*")) {
 		long int x = strtol(tmp, &e, 16);
 
-		if ((e && *e) || (x < 0 || x > 0xffff))
-		{
+		if ((e && *e) || (x < 0 || x > 0xffff)) {
 			free(tmp);
 			throw RuntimeError("Failed to parse PCI id: {}: Invalid vendor id", str);
 		}
@@ -138,11 +132,9 @@ Id::Id(const std::string &str) : vendor(0),
 	if (c)
 		*c++ = 0;
 
-	if (s[0] && strcmp(s, "*"))
-	{
+	if (s[0] && strcmp(s, "*")) {
 		long int x = strtol(s, &e, 16);
-		if ((e && *e) || (x < 0 || x > 0xffff))
-		{
+		if ((e && *e) || (x < 0 || x > 0xffff)) {
 			free(tmp);
 			throw RuntimeError("Failed to parse PCI id: {}: Invalid device id", str);
 		}
@@ -150,12 +142,10 @@ Id::Id(const std::string &str) : vendor(0),
 		device = x;
 	}
 
-	if (c && c[0] && strcmp(s, "*"))
-	{
+	if (c && c[0] && strcmp(s, "*")) {
 		long int x = strtol(c, &e, 16);
 
-		if ((e && *e) || (x < 0 || x > 0xffff))
-		{
+		if ((e && *e) || (x < 0 || x > 0xffff)) {
 			free(tmp);
 			throw RuntimeError("Failed to parse PCI id: {}: Invalid class code", str);
 		}
@@ -176,10 +166,11 @@ bool Id::operator==(const Id &i)
 	return true;
 }
 
-Slot::Slot(const std::string &str) : domain(0),
-									 bus(0),
-									 device(0),
-									 function(0)
+Slot::Slot(const std::string &str) :
+	domain(0),
+	bus(0),
+	device(0),
+	function(0)
 {
 	char *tmp = strdup(str.c_str());
 	char *colon = strrchr(tmp, ':');
@@ -187,22 +178,18 @@ Slot::Slot(const std::string &str) : domain(0),
 	char *mid = tmp;
 	char *e, *buss, *colon2;
 
-	if (colon)
-	{
+	if (colon) {
 		*colon++ = 0;
 		mid = colon;
 
 		colon2 = strchr(tmp, ':');
-		if (colon2)
-		{
+		if (colon2) {
 			*colon2++ = 0;
 			buss = colon2;
 
-			if (tmp[0] && strcmp(tmp, "*"))
-			{
+			if (tmp[0] && strcmp(tmp, "*")) {
 				long int x = strtol(tmp, &e, 16);
-				if ((e && *e) || (x < 0 || x > 0x7fffffff))
-				{
+				if ((e && *e) || (x < 0 || x > 0x7fffffff)) {
 					free(tmp);
 					throw RuntimeError("Failed to parse PCI slot: {}: invalid domain", str);
 				}
@@ -213,11 +200,9 @@ Slot::Slot(const std::string &str) : domain(0),
 		else
 			buss = tmp;
 
-		if (buss[0] && strcmp(buss, "*"))
-		{
+		if (buss[0] && strcmp(buss, "*")) {
 			long int x = strtol(buss, &e, 16);
-			if ((e && *e) || (x < 0 || x > 0xff))
-			{
+			if ((e && *e) || (x < 0 || x > 0xff)) {
 				free(tmp);
 				throw RuntimeError("Failed to parse PCI slot: {}: invalid bus", str);
 			}
@@ -229,12 +214,10 @@ Slot::Slot(const std::string &str) : domain(0),
 	if (dot)
 		*dot++ = 0;
 
-	if (mid[0] && strcmp(mid, "*"))
-	{
+	if (mid[0] && strcmp(mid, "*")) {
 		long int x = strtol(mid, &e, 16);
 
-		if ((e && *e) || (x < 0 || x > 0x1f))
-		{
+		if ((e && *e) || (x < 0 || x > 0x1f)) {
 			free(tmp);
 			throw RuntimeError("Failed to parse PCI slot: {}: invalid slot", str);
 		}
@@ -242,12 +225,10 @@ Slot::Slot(const std::string &str) : domain(0),
 		device = x;
 	}
 
-	if (dot && dot[0] && strcmp(dot, "*"))
-	{
+	if (dot && dot[0] && strcmp(dot, "*")) {
 		long int x = strtol(dot, &e, 16);
 
-		if ((e && *e) || (x < 0 || x > 7))
-		{
+		if ((e && *e) || (x < 0 || x > 7)) {
 			free(tmp);
 			throw RuntimeError("Failed to parse PCI slot: {}: invalid function", str);
 		}
@@ -274,8 +255,7 @@ bool Device::operator==(const Device &f)
 	return id == f.id && slot == f.slot;
 }
 
-std::list<Region>
-Device::getRegions() const
+std::list<Region> Device::getRegions() const
 {
 	FILE *f;
 	char sysfs[1024];
@@ -296,16 +276,13 @@ Device::getRegions() const
 	int reg_num = 0;
 
 	// Cap to 8 regions, just because we don't know how many may exist.
-	while (reg_num < 8 && (bytesRead = getline(&line, &len, f)) != -1)
-	{
+	while (reg_num < 8 && (bytesRead = getline(&line, &len, f)) != -1) {
 		unsigned long long tokens[3];
 		char *s = line;
-		for (int i = 0; i < 3; i++)
-		{
+		for (int i = 0; i < 3; i++) {
 			char *end;
 			tokens[i] = strtoull(s, &end, 16);
-			if (s == end)
-			{
+			if (s == end) {
 				log->debug("Error parsing line {} of {}", reg_num + 1, sysfs);
 				tokens[0] = tokens[1] = 0; // Mark invalid
 				break;
@@ -319,8 +296,7 @@ Device::getRegions() const
 		line = nullptr;
 		len = 0;
 
-		if (tokens[0] != tokens[1])
-		{ // This is a valid region
+		if (tokens[0] != tokens[1]) { // This is a valid region
 			Region region;
 
 			region.num = reg_num;
@@ -339,8 +315,7 @@ Device::getRegions() const
 	return regions;
 }
 
-std::string
-Device::getDriver() const
+std::string Device::getDriver() const
 {
 	int ret;
 	char sysfs[1024], syml[1024];
@@ -389,131 +364,72 @@ bool Device::attachDriver(const std::string &driver) const
 	return true;
 }
 
-
-bool Device::readHostBar(uint32_t &bar) const
+uint32_t Device::readHostBar(unsigned barNum) const
 {
-	unsigned long long start, end, size, flags;
-	char *path = NULL;
-	if (asprintf(&path, "%s/bus/pci/devices/%04x:%02x:%02x.%x/resource", SYSFS_PATH,
-				 slot.domain, slot.bus, slot.device, slot.function) == -1)
-	{
-		log->error("could not allocate memory for path");
-		return false;
-	}
-	FILE *file = fopen(path, "r");
-	if (!file)
-	{
-		log->error("error opening resource file");
-		return false;
-	}
+	auto file = openSysFs("resource", std::ios_base::in);
 
-	if (fscanf(file, "%llx %llx %llx", &start, &end, &flags) != 3)
-	{
-		log->error("error reading resource file");
-		fclose(file);
-		return false;
-	}
+	std::string line;
+
+	unsigned i;
+	for (i = 0; i <= barNum && !file.eof(); i++)
+		std::getline(file, line);
+
+	if (i != barNum && file.eof())
+		throw RuntimeError("Failed to read resource file");
+
+	unsigned long long start, end, flags;
+	if (std::sscanf(line.c_str(), "%llx %llx %llx", &start, &end, &flags) != 3)
+		throw SystemError("Failed to parse BAR line");
+
 	if (end > start)
-	{
-		size = end - start + 1;
-	}
-	else
-	{
-		log->error("error reading bar size");
-		fclose(file);
-		return false;
-	}
-	log->debug("start: {:#x}, end: {:#x}, size: {:#x}, flags: {:#x}", start, end, size, flags);
-	fclose(file);
-	bar = start;
-	return true;
+		throw SystemError("Invalid BAR: start={}, end={}", start, end);
+
+	log->debug("Host BAR: start={:#x}, end={:#x}, size={:#x}, flags={:#x}", start, end, end - start, flags);
+
+	return start;
 }
 
-bool Device::rewriteBar()
+void Device::rewriteBar(unsigned barNum)
 {
-	uint32_t hostbar, configbar;
-	if (!readHostBar(hostbar))
-	{
-		log->error("error reading host bar");
-		return false;
+	auto hostBar = readHostBar(barNum);
+	auto configBar = readBar(barNum);
+
+	log->debug("Host BAR: {:#x}, configbar: {:#x}", hostBar, configBar);
+
+	if (hostBar == configBar) {
+		log->debug("BAR is already correct");
+		return;
 	}
-	if (!readBar(configbar))
-	{
-		log->error("error reading config bar");
-		return false;
-	}
-	log->debug("hostbar: {:#x}, configbar: {:#x}", hostbar, configbar);
-	if (hostbar == configbar)
-	{
-		log->debug("bar is already correct");
-		return true;
-	} else {
-		log->debug("bar is incorrect, rewriting");
-		return writeBar(hostbar);
-	}
+
+	log->debug("BAR is incorrect, rewriting");
+
+	writeBar(hostBar, barNum);
 }
 
-bool Device::readBar(uint32_t &bar) const
+uint32_t Device::readBar(unsigned barNum) const
 {
-	off_t pos = PCI_BASE_ADDRESS_0;
-	uint32_t read_buf;
-	char *path = NULL;
-	if (asprintf(&path, "%s/bus/pci/devices/%04x:%02x:%02x.%x/config", SYSFS_PATH,
-				 slot.domain, slot.bus, slot.device, slot.function) == -1)
-	{
-		log->error("could not allocate memory for path");
-		return false;
-	}
-	int fd = open(path, O_RDWR);
-	if (fd < 0)
-	{
-		log->error("could not open config space");
-		return false;
-	}
+	uint32_t addr;
+	auto file = openSysFs("config", std::ios_base::in);
 
-	if (pread(fd, &read_buf, sizeof(read_buf), pos) != sizeof(read_buf))
-	{
-		log->error("error reading from {:#x}", pos);
-		close(fd);
-		return false;
-	}
-	bar = read_buf;
-	close(fd);
-	return true;
+	file.seekg(PCI_BASE_ADDRESS_N(barNum));
+	file.read(reinterpret_cast<char *>(&addr), sizeof(addr));
+
+	return addr;
 }
 
-bool Device::writeBar(uint32_t new_bar)
+void Device::writeBar(uint32_t addr, unsigned barNum)
 {
-	uint32_t write_buf = new_bar;
-	off_t pos = PCI_BASE_ADDRESS_0;
-	char *path = NULL;
-	if (asprintf(&path, "%s/bus/pci/devices/%04x:%02x:%02x.%x/config", SYSFS_PATH,
-				 slot.domain, slot.bus, slot.device, slot.function) == -1)
-	{
-		log->error("could not allocate memory for path");
-		return false;
-	}
-	int fd = open(path, O_RDWR);
-	if (fd < 0)
-	{
-		log->error("could not open config space");
-		return false;
-	}
+	auto file = openSysFs("config", std::ios_base::out);
 
-	if (pwrite(fd, &write_buf, sizeof(write_buf), pos) != sizeof(write_buf))
-	{
-		log->error("error writing to {:#x}", pos);
-		close(fd);
-		return false;
-	}
-	close(fd);
-	return true;
+	file.seekp(PCI_BASE_ADDRESS_N(barNum));
+	file.write(reinterpret_cast<char *>(&addr), sizeof(addr));
 }
 
-int Device::getIOMMUGroup() const
+int Device::getIommuGroup() const
 {
 	int ret;
 	char *group;
+
 	// readlink() does not add a null terminator!
 	char link[1024] = {0};
 	char sysfs[1024];
@@ -528,4 +444,17 @@ int Device::getIOMMUGroup() const
 	group = basename(link);
 
 	return atoi(group);
+}
+
+std::fstream Device::openSysFs(const std::string &subPath, std::ios_base::openmode mode) const
+{
+	std::fstream file;
+
+	auto sysFsFilename = fmt::format("{}/bus/pci/devices/{:04x}:{:02x}:{:02x}.{:x}/{}", SYSFS_PATH,
+		slot.domain, slot.bus, slot.device, slot.function, subPath);
+
+	file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+	file.open(sysFsFilename, mode);
+
+	return file;
 }
