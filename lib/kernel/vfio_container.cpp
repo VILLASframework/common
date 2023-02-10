@@ -32,6 +32,7 @@
 
 #include <villas/exceptions.hpp>
 #include <villas/log.hpp>
+#include <villas/kernel/vfio.hpp>
 #include <villas/kernel/vfio_container.hpp>
 #include <villas/kernel/kernel.hpp>
 
@@ -40,9 +41,6 @@ using namespace villas::kernel::vfio;
 #ifndef VFIO_NOIOMMU_IOMMU
   #define VFIO_NOIOMMU_IOMMU 8
 #endif
-
-// Uncomment to not load pci kernel modules
-#define LOAD_MODULE_PCI
 
 static std::array<std::string, EXTENSION_SIZE> construct_vfio_extension_str() {
 	std::array<std::string, EXTENSION_SIZE> ret;
@@ -76,16 +74,6 @@ Container::Container() :
 	groups(),
 	log(logging.get("kernel:vfio::Container"))
 {
-	static constexpr const char* requiredKernelModules[] = {
-	    "vfio", 
-
-		#if !defined(LOAD_MODULE_PCI)
-		"vfio_pci",
-		#endif // LOAD_MODULE_PCI
-		
-		"vfio_iommu_type1"
-	};
-
 	for (const char* module : requiredKernelModules) {
 		if (kernel::loadModule(module) != 0) {
 			throw RuntimeError("Kernel module '{}' required but could not be loaded. "
