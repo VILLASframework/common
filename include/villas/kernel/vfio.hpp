@@ -4,7 +4,6 @@
 
 #if defined(FPGA_PLATFORM)
     #define KERNEL_MODULE_VFIO
-    #define KERNEL_MODULE_VFIO_IOMMU_TYPE1
 #endif
 
 #if defined(FPGA_PCI)
