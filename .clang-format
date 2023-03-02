@@ -1,0 +1,61 @@
+# https://github.com/torvalds/linux/blob/master/Documentation/process/coding-style.rst
+
+BasedOnStyle: GNU
+
+Language: Cpp
+AlignAfterOpenBracket: Align
+#AlignArrayOfStructures: None
+
+# Comments
+ReflowComments: false
+
+# Alignment (dont do it...)
+#AlignConsecutiveAssignments: None
+AlignEscapedNewlines: DontAlign
+AlignOperands: DontAlign
+AlignTrailingComments: false
+
+# MISC
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+
+# Line Breaks
+AlwaysBreakAfterDefinitionReturnType: None
+AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: true
+AlwaysBreakTemplateDeclarations: No
+
+# BinPack
+BinPackArguments: false
+BinPackParameters: false
+
+# Torvalds Style:
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterClass: true
+  AfterControlStatement: false
+  AfterFunction: true
+  AfterNamespace: false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
+
+
+SpaceAfterCStyleCast: true
+SpaceAfterLogicalNot: false
+SpaceAfterTemplateKeyword: false
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeParens: Never
+
+PointerAlignment: Right
+
+TabWidth: 8
+IndentWidth: 8
+IndentAccessModifiers: false # WORK only
+AccessModifierOffset: -8  # WORK only
