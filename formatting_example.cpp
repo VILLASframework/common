@@ -23,21 +23,25 @@ public:
 formatting_example::formatting_example()
 {
         // Automated intendation and linebreaking
-        if(error) {
+        if (error) {
                 panic();
 
-        } else if(some_condition
-                  || very_long_function(
-                      aligator,
-                      cargo,
-                      airplane,
-                      std::make_unique<struct s>({ 1, 2, 3, 4, 5, 6 }))) {
+        } else if (some_condition
+                   || very_long_function(
+                       aligator,
+                       cargo,
+                       airplane,
+                       std::make_unique<struct s>({ 1, 2, 3, 4, 5, 6 }))) {
                 a = b + c;
                 struct s {
                         int real, int cmplx
                 };
         } else
                 goto spaghetti;
+
+        for (size_t i = 0; i < count; i++) {
+                i++;
+        }
 
         return CONST;
 }
