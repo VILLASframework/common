@@ -75,10 +75,7 @@ Container::Container() :
 	log(logging.get("kernel:vfio::Container"))
 {
 	for (const char* module : requiredKernelModules) {
-		if (kernel::loadModule(module) != 0) {
-			throw RuntimeError("Kernel module '{}' required but could not be loaded. "
-			              "Please load manually!", module);
-		}
+		kernel::loadModule(module);
 	}
 
 	// Create a VFIO Container
