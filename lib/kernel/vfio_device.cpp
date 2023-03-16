@@ -84,10 +84,12 @@ Device::Device(const std::string &name, int groupFileDescriptor, const kernel::p
 	log->debug("device info: flags: 0x{:x}, num_regions: {}, num_irqs: {}",
 		info.flags, info.num_regions, info.num_irqs);
 
-	// device_info.num_region reports always 9 and includes a VGA region, which is only supported on
-	// certain device IDs. So for non-VGA devices VFIO_PCI_CONFIG_REGION_INDEX will be the highest
-	// region index. This is the config space.
-	info.num_regions = VFIO_PCI_CONFIG_REGION_INDEX + 1;
+	if (pci_device != 0){
+		// device_info.num_region reports always 9 and includes a VGA region, which is only supported on
+		// certain device IDs. So for non-VGA devices VFIO_PCI_CONFIG_REGION_INDEX will be the highest
+		// region index. This is the config space.
+		info.num_regions = VFIO_PCI_CONFIG_REGION_INDEX + 1;
+	}
 
 	// Reserve slots already so that we can use the []-operator for access
 	irqs.resize(info.num_irqs);
