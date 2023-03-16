@@ -97,7 +97,7 @@ Device::Device(const std::string &name, int groupFileDescriptor, const kernel::p
 	mappings.resize(info.num_regions);
 
 	// Get device regions
-	for (size_t i = 0; i < info.num_regions && i < 8; i++) {
+	for (size_t i = 0; i < info.num_regions; i++) {
 		struct vfio_region_info region;
 		memset(&region, 0, sizeof (region));
 
