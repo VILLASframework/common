@@ -56,8 +56,8 @@ protected:
 
 	Level level;
 
-	std::string pattern;		/**< Logging format. */
-	std::string prefix;		/**< Prefix each line with this string. */
+	std::string pattern;		// Logging format.
+	std::string prefix;		// Prefix each line with this string.
 
 	std::list<Expression> expressions;
 
@@ -65,7 +65,7 @@ public:
 
 	Log(Level level = Level::info);
 
-	/**< Get the real usable log output width which fits into one line. */
+	// Get the real usable log output width which fits into one line.
 	int getWidth();
 
 	void parse(json_t *json);
@@ -81,7 +81,18 @@ public:
 
 	void addSink(std::shared_ptr<spdlog::sinks::sink> sink)
 	{
+		sink->set_formatter(formatter->clone());
+		sink->set_level(level);
+
 		sinks->add_sink(sink);
+	}
+
+	void replaceStdSink(std::shared_ptr<spdlog::sinks::sink> sink)
+	{
+		sink->set_formatter(formatter->clone());
+		sink->set_level(level);
+
+		sinks->sinks()[0] = sink;
 	}
 };
 
