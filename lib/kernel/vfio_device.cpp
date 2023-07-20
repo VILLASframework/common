@@ -30,6 +30,8 @@
 #include <villas/exceptions.hpp>
 #include <villas/kernel/vfio_device.hpp>
 
+#include <iostream>
+
 using namespace villas::kernel::vfio;
 
 static
@@ -89,7 +91,7 @@ Device::Device(const std::string &name, int groupFileDescriptor, const kernel::p
 		// certain device IDs. So for non-VGA devices VFIO_PCI_CONFIG_REGION_INDEX will be the highest
 		// region index. This is the config space.
 		info.num_regions = VFIO_PCI_CONFIG_REGION_INDEX + 1;
-	}
+	}else{ info.num_regions = 1; }
 
 	// Reserve slots already so that we can use the []-operator for access
 	irqs.resize(info.num_irqs);
@@ -108,7 +110,7 @@ Device::Device(const std::string &name, int groupFileDescriptor, const kernel::p
 		if (ret < 0)
 			throw RuntimeError("Failed to get region {} of VFIO device: {}", i, name);
 
-        	log->debug("region {} info: flags: 0x{:x}, cap_offset: 0x{:x}, size: 0x{:x}, offset: 0x{:x}",
+		log->debug("region {} info: flags: 0x{:x}, cap_offset: 0x{:x}, size: 0x{:x}, offset: 0x{:x}",
                		region.index, region.flags, region.cap_offset, region.size, region.offset);
 
 		regions[i] = region;
