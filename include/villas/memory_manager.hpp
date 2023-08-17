@@ -120,6 +120,13 @@ private:
 			              << ", size=0x" << mapping.size
 			              << ")";
 		}
+
+		std::string str()
+		{
+			std::stringstream s;
+			s << *this;
+			return s.str();		
+		}
 	};
 
 	// Custom vertex in memory graph representing an address space
