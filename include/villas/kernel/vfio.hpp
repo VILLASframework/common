@@ -1,6 +1,6 @@
 //TODO: Move to cmake args
-#define FPGA_PLATFORM
-//#define FPGA_PCI
+//#define FPGA_PLATFORM
+#define FPGA_PCI
 
 #if defined(FPGA_PLATFORM)
     #define KERNEL_MODULE_VFIO
