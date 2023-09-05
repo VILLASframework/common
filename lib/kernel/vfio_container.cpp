@@ -41,8 +41,10 @@ using namespace villas::kernel::vfio;
   #define VFIO_NOIOMMU_IOMMU 8
 #endif
 
-static
-std::array<std::string, EXTENSION_SIZE> construct_vfio_extension_str() {
+// Uncomment to not load pci kernel modules
+#define LOAD_MODULE_PCI
+
+static std::array<std::string, EXTENSION_SIZE> construct_vfio_extension_str() {
 	std::array<std::string, EXTENSION_SIZE> ret;
 	ret[VFIO_TYPE1_IOMMU] = "Type 1";
 	ret[VFIO_SPAPR_TCE_IOMMU] = "SPAPR TCE";
@@ -74,9 +76,14 @@ Container::Container() :
 	groups(),
 	log(logging.get("kernel:vfio::Container"))
 {
-	static constexpr
-	const char* requiredKernelModules[] = {
-	    "vfio", "vfio_pci", "vfio_iommu_type1"
+	static constexpr const char* requiredKernelModules[] = {
+	    "vfio", 
+
+		#if !defined(LOAD_MODULE_PCI)
+		"vfio_pci",
+		#endif // LOAD_MODULE_PCI
+		
+		"vfio_iommu_type1"
 	};
 
 	for (const char* module : requiredKernelModules) {
