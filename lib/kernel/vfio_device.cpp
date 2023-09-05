@@ -30,8 +30,6 @@
 #include <villas/exceptions.hpp>
 #include <villas/kernel/vfio_device.hpp>
 
-#include <iostream>
-
 using namespace villas::kernel::vfio;
 
 static
