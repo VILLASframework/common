@@ -1,8 +1,8 @@
 /** VFIO Kernel module loader
  *
  * Author: Pascal Bauer <pascal.bauer@rwth-aachen.de>
- * SPDX-FileCopyrightText: 2017 Institute for Automation of Complex Power
- * Systems, EONERC SPDX-License-Identifier: Apache-2.0
+ * SPDX-FileCopyrightText: 2017 Institute for Automation of Complex Power Systems, RWTH Aachen University
+ * SPDX-License-Identifier: Apache-2.0
  *********************************************************************************/
 
 //TODO: Move to cmake args
