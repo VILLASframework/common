@@ -121,7 +121,7 @@ private:
 			              << ")";
 		}
 
-		std::string str()
+		std::string toString()
 		{
 			std::stringstream s;
 			s << *this;
