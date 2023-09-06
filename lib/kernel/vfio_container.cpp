@@ -42,7 +42,8 @@ using namespace villas::kernel::vfio;
   #define VFIO_NOIOMMU_IOMMU 8
 #endif
 
-static std::array<std::string, EXTENSION_SIZE> construct_vfio_extension_str() {
+static
+std::array<std::string, EXTENSION_SIZE> construct_vfio_extension_str() {
 	std::array<std::string, EXTENSION_SIZE> ret;
 	ret[VFIO_TYPE1_IOMMU] = "Type 1";
 	ret[VFIO_SPAPR_TCE_IOMMU] = "SPAPR TCE";
