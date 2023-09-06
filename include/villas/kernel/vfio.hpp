@@ -20,15 +20,15 @@
 #endif
 
 static constexpr const char* const requiredKernelModules[] = {
-    #if defined(KERNEL_MODULE_VFIO)
+#if defined(KERNEL_MODULE_VFIO)
     "vfio",
-    #endif // KERNEL_MODULE_VFIO_PCI
+#endif // KERNEL_MODULE_VFIO_PCI
 
-    #if defined(KERNEL_MODULE_VFIO_PCI)
+#if defined(KERNEL_MODULE_VFIO_PCI)
     "vfio_pci",
-    #endif // KERNEL_MODULE_VFIO_PCI
+#endif // KERNEL_MODULE_VFIO_PCI
     
-    #if defined(KERNEL_MODULE_VFIO_IOMMU_TYPE1)
+#if defined(KERNEL_MODULE_VFIO_IOMMU_TYPE1)
     "vfio_iommu_type1"
-    #endif // KERNEL_MODULE_VFIO_IOMMU_TYPE1
+#endif // KERNEL_MODULE_VFIO_IOMMU_TYPE1
 };
