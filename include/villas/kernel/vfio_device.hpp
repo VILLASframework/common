@@ -37,7 +37,7 @@ public:
 
 	bool reset();
 
-	std::string get_name() { return name; };
+	std::string getName() { return name; };
 
 	// Map a device memory region to the application address space (e.g. PCI BARs)
 	void* regionMap(size_t index);
