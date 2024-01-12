@@ -10,12 +10,12 @@
 #include <map>
 
 #include <fnmatch.h>
+#include <villas/log.hpp>
 
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/syslog_sink.h>
 
 #include <villas/exceptions.hpp>
-#include <villas/log.hpp>
 #include <villas/terminal.hpp>
 
 using namespace villas;
@@ -58,6 +58,11 @@ Log::Log(Level lvl) : level(lvl), pattern("%H:%M:%S %^%-4t%$ %-16n %v") {
   sink = std::make_shared<spdlog::sinks::stderr_color_sink_mt>();
 
   sinks->add_sink(sink);
+
+  auto defaultLogger = spdlog::stdout_color_mt("villas");
+  spdlog::set_default_logger(defaultLogger);
+  spdlog::set_pattern("%H:%M:%S %^%-4t%$ %l: %v (%s:%#)");
+  spdlog::set_level(spdlog::level::trace);
 }
 
 int Log::getWidth() {
