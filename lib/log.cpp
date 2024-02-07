@@ -60,8 +60,14 @@ Log::Log(Level lvl) : level(lvl), pattern("%H:%M:%S %^%-4t%$ %-16n %v") {
   sinks->add_sink(sink);
 
   auto defaultLogger = spdlog::stdout_color_mt("villas");
+  formatter = std::make_shared<spdlog::pattern_formatter>(
+      spdlog::pattern_time_type::utc);
+  formatter->add_flag<CustomLevelFlag>('t');
+  formatter->set_pattern(prefix + pattern);
+
+  sinks->set_formatter(formatter->clone());
   spdlog::set_default_logger(defaultLogger);
-  spdlog::set_pattern("%H:%M:%S %^%-4t%$ %l: %v (%s:%#)");
+  spdlog::set_pattern("%H:%M:%S %-4t %^%l:%$ %v (%s:%#)");
   spdlog::set_level(spdlog::level::trace);
 }
 
